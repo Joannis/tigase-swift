@@ -21,7 +21,11 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "TigaseSwift",
-            dependencies: []),
+            dependencies: [],
+            swiftSettings: [
+                .define("DISABLE_LOG")
+            ]
+        ),
         .testTarget(
             name: "TigaseSwiftTests",
             dependencies: ["TigaseSwift"]),

@@ -45,7 +45,6 @@ open class DNSSrvResolverWithCache: Logger, DNSSrvResolver {
                 }
                 
                 self.resolver.resolve(domain: domain, for: jid) { dnsResult in
-                    print("dns resolution finished:", dnsResult);
                     switch dnsResult {
                     case .success(let records):
                         self.save(for: domain, result: records);
