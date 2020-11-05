@@ -39,21 +39,21 @@ open class SslCertificateValidator {
         SecTrustSetPolicies(trust, policy);
         SecTrustEvaluate(trust, &secTrustResultType);
         
-        var valid = (secTrustResultType == SecTrustResultType.proceed || secTrustResultType == SecTrustResultType.unspecified);
-        if !valid {
-            let certCount = SecTrustGetCertificateCount(trust);
+        let certCount = SecTrustGetCertificateCount(trust);
+        
+        if certCount > 0 {
+            let cert = SecTrustGetCertificateAtIndex(trust, 0);
+            let fingerprint = SslCertificateInfo.calculateSha1Fingerprint(certificate: cert!);
+            let acceptedFingerprint: String? = sessionObject.getProperty(SslCertificateValidator.ACCEPTED_SSL_CERTIFICATE_FINGERPRINT);
             
-            if certCount > 0 {
-                let cert = SecTrustGetCertificateAtIndex(trust, 0);
-                let fingerprint = SslCertificateInfo.calculateSha1Fingerprint(certificate: cert!);
-                let acceptedFingerprint: String? = sessionObject.getProperty(SslCertificateValidator.ACCEPTED_SSL_CERTIFICATE_FINGERPRINT);
-                valid = fingerprint == acceptedFingerprint;
+            if let fingerprint = fingerprint, let acceptedFingerprint = acceptedFingerprint {
+                return fingerprint.lowercased() == acceptedFingerprint.lowercased()
+            } else {
+                return secTrustResultType == SecTrustResultType.proceed || secTrustResultType == SecTrustResultType.unspecified
             }
-            else {
-                valid = false;
-            }
+        } else {
+            return false
         }
-        return valid;
     }
     
 }
